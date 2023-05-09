@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Target Multi-purpose Free Bootstrap Responsive Template</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="" />
+<meta name="author" content="http://webthemez.com" />
+ 
+<link href="./css/bootstrap.min.css" rel="stylesheet" />
+<script src="js/vue.js"></script>
+<link href="./css/fancybox/jquery.fancybox.css" rel="stylesheet">
+<!--<link href="./css/jcarousel.css" rel="stylesheet" />-->
+<link href="./css/flexslider.css" rel="stylesheet" />
+<link href="./css/style.css" rel="stylesheet" />
+ 
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<div id="wrapper">
+
+	<!-- start header -->
+		<header>
+        <div class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="index.html"><img src="./img/logo.png" height="42px" alt="logo"/></a>
+                </div>
+                <div class="navbar-collapse collapse ">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">主页</a></li> 
+						<li><a href="about.html">成员</a></li>
+						<li><a href="services.html">赛事</a></li>
+                        <li class="active"><a href="portfolio.html">工具</a></li>
+                        <li><a href="pricing.html">加入我们</a></li>
+                        <li><a href="contact.html">敬请期待</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	</header><!-- end header -->
+	<section id="inner-headline">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<h2 class="pageTitle">西风杯抽签工具</h2>
+			</div>
+		</div>
+	</div>
+	</section>
+	<section id="content">
+		<div class="container content">		
+            <div id="app" class="app" >
+                <a class="btn btn-theme" @click=click32()>32强抽签分组</a>
+                <a class="btn btn-theme" @click=click16a()>16强抽签分组(同桌回避)</a>
+                <a class="btn btn-theme" @click=click8()>8强抽签分组</a>
+            
+                
+                <div class="block-heading-six">
+                    <br>
+                    <h4 class="bg-color">抽签结果</h4>
+                </div>
+                <textarea name="textarea" id="01" cols="55" rows="10" readonly>{{res}}</textarea>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                res: '',
+            };
+        },
+         methods: {
+            click32() {
+                function shuffle(array){
+                    let res = [], random;
+                    while(array.length>0){
+                        random = Math.floor(Math.random()*array.length);
+                        res.push(array[random]);
+                        array.splice(random, 1);
+                    }
+                    return res;
+                }
+                arr=[]
+                for(i=1;i<33;i++){arr.push(i)}
+                arr=shuffle(arr)
+                str=''
+                table=['A','B','C','D','E','F','G','H']
+                for(i=0;i<8;i++){
+                    str+='【'+table[i]+'卓】 '+arr.slice(4*i,4*i+4)+'\n'
+                }
+                this.res=str;
+            },
+            click16a(){
+                function shuffle(array){
+                    let res = [], random;
+                    while(array.length>0){
+                        random = Math.floor(Math.random()*array.length);
+                        res.push(array[random]);
+                        array.splice(random, 1);
+                    }
+                    return res;
+                }
+                function random(arr){
+                    arr=shuffle(arr)
+                    groups=[]
+                    for(i=0;i<4;i++){
+                        groups.push(arr.slice(i*4,i*4+4))
+                    }
+                    for(i=0;i<16;i+=2){
+                        for(j=0;j<4;j++){
+                            group=groups[j]
+                            if((group.indexOf(i)!=-1) && (group.indexOf(i+1)!=-1)){
+                                return random(arr)
+                            }
+                        }
+                    }
+                    return arr
+                }
+                arr=[]
+                for(i=0;i<16;i++){arr.push(i)}
+                arr=random(arr)
+                for(i=0;i<16;i++){arr[i]+=1}
+                str=''
+                table=['A','B','C','D']
+                for(i=0;i<4;i++){
+                    str+='【'+table[i]+'卓】 '+arr.slice(4*i,4*i+4)+'\n'
+                }
+                this.res=str;
+
+            },
+            click8() {
+                function shuffle(array){
+                    let res = [], random;
+                    while(array.length>0){
+                        random = Math.floor(Math.random()*array.length);
+                        res.push(array[random]);
+                        array.splice(random, 1);
+                    }
+                    return res;
+                }
+                arr=[]
+                for(i=1;i<9;i++){arr.push(i)}
+                arr=shuffle(arr)
+                str=''
+                table=['A','B']
+                for(i=0;i<2;i++){
+                    str+='【'+table[i]+'卓】 '+arr.slice(4*i,4*i+4)+'\n'
+                }
+                this.res=str;
+            },
+
+        },
+
+        
+    })
+
+</script>
+
+
+
+
+
+
+<!-- javascript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js/jquery.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.fancybox.pack.js"></script>
+<script src="js/jquery.fancybox-media.js"></script> 
+<script src="js/portfolio/jquery.quicksand.js"></script>
+<script src="js/portfolio/setting.js"></script>
+<script src="js/jquery.flexslider.js"></script>
+<script src="js/animate.js"></script>
+<script src="js/custom.js"></script>
+</body>
+</html>
