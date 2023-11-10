@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <!-- 引入样式 -->
+    <link rel="stylesheet" href="https://unpkg.zhimg.com/element-ui@2.15.10/lib/theme-chalk/index.css">
+    <!-- 引入组件库 -->
+    <script src="https://unpkg.zhimg.com/element-ui@2.15.10/lib/index.js"></script>
+    <title>DL</title>
+</head>
+<body>
+    <div id="app" class="app">
+    <h4 class="MuiTypography-root MuiTypography-h4 css-z2oei0" style="margin-bottom: 32px;margin-top: 32px;">西風社蒸发杯-海选个人赛</h4>
+    <h4 class="MuiTypography-root MuiTypography-h4 css-z2oei0" style="font-size: 10px;margin-bottom: 8px;">数据更新时间：{{update_time}}</h4>
+
+    <el-tabs v-model="activeName" @tab-click="handleClick">
+
+        <!--选手排行-->
+            <el-tab-pane label="选手排行" name="second">
+                <el-table
+                :data="playerData"
+                highlight-current-row
+                style="width: 100%"
+                :default-sort = "{prop: 'score', order: 'descending'}">
+                <el-table-column
+                type="index"
+                width="50">
+                </el-table-column>
+                <el-table-column
+                  prop="name"
+                  label="选手名称"
+                  sortable
+                  align="center"
+                  width="200">
+                <template slot-scope="scope">
+                    <el-link @click=clickplayer(scope.row.id) target="_blank" style="font-size: 15px;">{{scope.row.name}}</el-link>
+                </template>
+                </el-table-column>
+                <el-table-column
+                  prop="score"
+                  label="总得分"
+                  sortable
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="cccs"
+                  label="出场次数"
+                  sortable
+                  :sort-method="(a,b)=>{return a.cccs - b.cccs}"
+                  align="center"
+                  width="100">
+                </el-table-column>
+                <el-table-column
+                  prop="hpl"
+                  label="胡牌率"
+                  :sort-method="(a,b)=>{return a.hpl - b.hpl}"
+                  sortable
+                  align="center"
+                  width="100">
+                  <template slot-scope="scope">
+                    {{ scope.row.hpl }}%
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="fcl"
+                  label="放铳率"
+                  :sort-method="(a,b)=>{return a.fcl - b.fcl}"
+                  sortable
+                  align="center"
+                  width="100">
+                  <template slot-scope="scope">
+                    {{ scope.row.fcl }}%
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="lzl"
+                  label="立直率"
+                  :sort-method="(a,b)=>{return a.lzl - b.lzl}"
+                  sortable
+                  align="center"
+                  width="100">
+                  <template slot-scope="scope">
+                    {{ scope.row.lzl }}%
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="fll"
+                  label="副露率"
+                  :sort-method="(a,b)=>{return a.fll - b.fll}"
+                  sortable
+                  align="center"
+                  width="100">
+                  <template slot-scope="scope">
+                    {{ scope.row.fll }}%
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="zml"
+                  label="自摸率"
+                  :sort-method="(a,b)=>{return a.zml - b.zml}"
+                  sortable
+                  align="center"
+                  width="100">
+                  <template slot-scope="scope">
+                    {{ scope.row.zml }}%
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  prop="pjsw"
+                  label="平均顺位"
+                  :sort-method="(a,b)=>{return a.pjsw - b.pjsw}"
+                  sortable
+                  align="center"
+                  width="100">
+                </el-table-column>
+              </el-table>
+            </el-tab-pane>
+
+        <!--比赛对局-->
+            <el-tab-pane label="比赛对局" name="fifth">
+                <el-table
+      :data="roundData"
+      style="width: 100%"
+      :default-sort = "{prop: 'date', order: 'descending'}">
+      <el-table-column
+        prop="date"
+        label="日期"
+        sortable
+        width="200">
+      </el-table-column>
+      <el-table-column
+        prop="result"
+        label="对局结果">
+      </el-table-column>
+      <el-table-column
+        prop="link"
+        label="对局链接"
+        width="100">
+        <template slot-scope="scope">
+            <el-link class="el-icon-share" :href="scope.row.link" target="_blank" style="font-size: 20px;"></el-link>
+        </template>
+      </el-table-column>
+    </el-table>
+            </el-tab-pane>
+    </el-tabs>
+
+
+
+<!--对话框显示player详细信息-->
+
+
+<el-dialog title=" " :visible.sync="dialogTableVisible">
+    <h4 class="MuiTypography-root MuiTypography-h4 css-z2oei0">{{dname}}</h4>
+    <h5 style="text-align: center;">{{tname}}</h5>
+    <h5 class="MuiTypography-root MuiTypography-h5 css-saabsf">统计数据</h5>
+    
+    <div id="main" ref="chart" style="width: 600px;height:220px; margin:auto;margin-top: 16px;"></div>
+
+    
+    <div class="MuiBox-root css-1u3q4k3">
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">出场次数</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p" aria-label="">{{d0}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">总局数</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p" aria-label="">{{d1}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">总得点</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p" aria-label="">{{d2}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">和牌率</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p">{{d3}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">放铳率</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p">{{d4}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">自摸率</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p">{{d5}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">副露率</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p">{{d6}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">立直率</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p">{{d7}}</p>
+    </div>
+    <div class="MuiBox-root css-gg4vpm"><h6 class="MuiTypography-root MuiTypography-subtitle2 MuiTypography-noWrap css-lrbsr7">平均顺位</h6>
+        <p class="MuiTypography-root MuiTypography-body2 MuiTypography-noWrap css-1oney6p" aria-label="">{{d8}}</p>
+    </div>
+    </div>
+    
+    <h5 class="MuiTypography-root MuiTypography-h5 css-saabsf">对局记录</h5>
+    <div>
+        <el-table
+          :data="playerroundData"
+          highlight-current-row
+          style="width: 100%"
+          :default-sort = "{prop: 'date', order: 'descending'}">
+          <el-table-column
+            prop="date"
+            label="日期"
+            sortable
+            width="150">
+          </el-table-column>
+          <el-table-column
+            prop="place"
+            label="顺位"
+            sortable
+            width="100">
+          </el-table-column>
+          <el-table-column
+            prop="result"
+            label="对局结果">
+          </el-table-column>
+          <el-table-column
+            prop="link"
+            label="对局链接"
+            width="100">
+            <template slot-scope="scope">
+                <el-link class="el-icon-share" :href="scope.row.link" target="_blank" style="font-size: 20px;"></el-link>
+            </template>
+          </el-table-column>
+        </el-table>
+    </div>
+</el-dialog>
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                update_time: '2023-11-10 22:58:22',
+                teamData: [{name: '德云色腕豪',score: -0.0},{name: '初心',score: 0.0},{name: '飞龙',score: 0.0},{name: '七煌Keahoarl',score: 0.0},{name: '点苍',score: 0.0},{name: '竹芒',score: 0.0},{name: '右手第一张',score: 0.0},{name: '立直魔术师',score: 0.0},],
+                playerData: [{name: '把把狗运',score: 38.0,team: 'player',id:'0'},{name: '玄赤',score: 143.0,team: 'player',id:'1'},{name: 'aaaaglaaaa',score: -131.9,team: 'player',id:'2'},{name: 'AngelZJL',score: 204.9,team: 'player',id:'3'},{name: '五马分的商鞅',score: 19.8,team: 'player',id:'4'},{name: '唤灵',score: 32.3,team: 'player',id:'5'},{name: '别拷打我了',score: -7.3,team: 'player',id:'6'},{name: '缪楚',score: -100.2,team: 'player',id:'7'},{name: 'PontsyneGu',score: 200.0,team: 'player',id:'8'},{name: '应急食品供货商',score: -93.6,team: 'player',id:'9'},{name: '东云之谬',score: 148.9,team: 'player',id:'10'},{name: 'Toliamagi',score: -94.8,team: 'player',id:'11'},{name: '椎名真白XD',score: 24.1,team: 'player',id:'12'},{name: 'muqdipitty',score: -91.5,team: 'player',id:'13'},{name: '西木野综合病院',score: 13.0,team: 'player',id:'14'},{name: '九头蛇水煮肉片',score: -35.0,team: 'player',id:'15'},{name: 'lichuan',score: -108.9,team: 'player',id:'16'},{name: '照魔镜talu',score: -153.4,team: 'player',id:'17'},{name: '量子蝈民九折酱',score: 50.7,team: 'player',id:'18'},{name: '臭臭好臭哦',score: -52.0,team: 'player',id:'19'},{name: '这就是郭楠',score: 40.1,team: 'player',id:'20'},{name: 'Flamingo_Li',score: 32.9,team: 'player',id:'21'},{name: 'sengwei',score: 133.2,team: 'player',id:'22'},{name: '西电杨宗凯',score: -86.5,team: 'player',id:'23'},{name: '雀士亚',score: -35.6,team: 'player',id:'24'},{name: '芯羽S',score: -55.4,team: 'player',id:'25'},{name: '荒唐言1437',score: -20.9,team: 'player',id:'26'},{name: '失去梦想皮皮虾',score: -23.3,team: 'player',id:'27'},{name: '卢卢猹',score: 9.4,team: 'player',id:'28'},{name: 'unknown',score: 0.0,team: 'player',id:'29'},{name: 'unknown',score: 0.0,team: 'player',id:'30'},{name: 'unknown',score: 0.0,team: 'player',id:'31'},{name: 'unknown',score: 0.0,team: 'player',id:'32'},],
+                roundData: [{date: '2023.11.10',result:'AngelZJL(59.8)， 玄赤(10.9)， 把把狗运(-12.8)， aaaaglaaaa(-57.9)',link:'https://game.maj-soul.net/1/?paipu=231110-dee7b2c1-98c2-4968-a87b-aa394e1e702f'},{date: '2023.11.10',result:'唤灵(83.1)， 五马分的商鞅(18.4)， 缪楚(-21.6)， 别拷打我了(-79.9)',link:'https://game.maj-soul.net/1/?paipu=231110-c36e56f8-2e63-4d12-9d1c-621bea560061'},{date: '2023.11.10',result:'东云之谬(82.3)， PontsyneGu(7.0)， Toliamagi(-13.8)， 应急食品供货商(-75.5)',link:'https://game.maj-soul.net/1/?paipu=231110-54fbd6e1-d18f-4e61-b31a-c1dde3acda82'},{date: '2023.11.10',result:'椎名真白XD(61.2)， 西木野综合病院(7.2)， muqdipitty(-20.8)， 九头蛇水煮肉片(-47.6)',link:'https://game.maj-soul.net/1/?paipu=231110-a00004a1-6456-42b1-a2fd-9d9954e11f19'},{date: '2023.11.10',result:'AngelZJL(72.4)， lichuan(22.3)， aaaaglaaaa(-30.0)， 把把狗运(-64.7)',link:'https://game.maj-soul.net/1/?paipu=231110-3c1a6c99-fc8f-4207-8dbb-571e06674bfc'},{date: '2023.11.10',result:'玄赤(65.5)， 别拷打我了(5.1)， 照魔镜talu(-15.5)， 缪楚(-55.1)',link:'https://game.maj-soul.net/1/?paipu=231110-7763a143-8f92-40c3-8a3d-52be3cd92fda'},{date: '2023.11.10',result:'PontsyneGu(65.2)， 唤灵(11.4)， 量子蝈民九折酱(-16.8)， Toliamagi(-59.8)',link:'https://game.maj-soul.net/1/?paipu=231110-6e89d777-c680-499c-a2d1-96815eb59df6'},{date: '2023.11.10',result:'臭臭好臭哦(60.2)， 九头蛇水煮肉片(12.6)， 这就是郭楠(-23.1)， muqdipitty(-49.7)',link:'https://game.maj-soul.net/1/?paipu=231110-fff1a94f-ce58-4ab2-9eb4-683fb2bfe4e1'},{date: '2023.11.10',result:'别拷打我了(67.5)， Flamingo_Li(1.8)， 量子蝈民九折酱(-22.6)， 照魔镜talu(-46.7)',link:'https://game.maj-soul.net/1/?paipu=231110-40ec5154-735d-4b17-bfd1-79c09fcf78c2'},{date: '2023.11.10',result:'AngelZJL(72.7)， 西木野综合病院(15.4)， lichuan(-32.6)， aaaaglaaaa(-55.5)',link:'https://game.maj-soul.net/1/?paipu=231110-bb40ae09-6d7f-4c4c-aa55-759fd9461e5b'},{date: '2023.11.10',result:'把把狗运(63.8)， 应急食品供货商(8.1)， 缪楚(-23.5)， 椎名真白XD(-48.4)',link:'https://game.maj-soul.net/1/?paipu=231110-1f440165-f987-4d14-b635-2aaeccc133c4'},{date: '2023.11.10',result:'PontsyneGu(50.5)， sengwei(10.1)， 雀士亚(-16.3)， 西电杨宗凯(-44.3)',link:'https://game.maj-soul.net/1/?paipu=231110-5e98425d-2eea-4624-ab58-f64178cfc9fc'},{date: '2023.11.10',result:'这就是郭楠(63.2)， 五马分的商鞅(1.4)， muqdipitty(-21.0)， 臭臭好臭哦(-43.6)',link:'https://game.maj-soul.net/1/?paipu=231110-a465c835-2513-4393-a2d2-b808e9adf8e3'},{date: '2023.11.10',result:'把把狗运(51.7)， aaaaglaaaa(11.5)， 西木野综合病院(-9.6)， 玄赤(-53.6)',link:'https://game.maj-soul.net/1/?paipu=231110-c16e16ce-c9cf-436a-a84e-a1dec678951a'},{date: '2023.11.10',result:'量子蝈民九折酱(82.9)， Flamingo_Li(31.1)， 照魔镜talu(-29.2)， lichuan(-84.8)',link:'https://game.maj-soul.net/1/?paipu=231110-d40671a0-a955-4931-8ed7-9a51a4ccb5b4'},{date: '2023.11.10',result:'PontsyneGu(70.3)， 椎名真白XD(11.3)， 应急食品供货商(-26.2)， 芯羽S(-55.4)',link:'https://game.maj-soul.net/1/?paipu=231110-453a022a-adaa-44f1-bffd-99ce76e4e665'},{date: '2023.11.10',result:'sengwei(67.5)， 西电杨宗凯(5.2)， 雀士亚(-19.3)， 臭臭好臭哦(-53.4)',link:'https://game.maj-soul.net/1/?paipu=231110-20ac66e0-6a8d-49f7-b734-865ebe6186ba'},{date: '2023.11.10',result:'玄赤(58.3)， 量子蝈民九折酱(7.2)， 荒唐言1437(-20.9)， 失去梦想皮皮虾(-44.6)',link:'https://game.maj-soul.net/1/?paipu=231110-a801b8db-b254-4405-ab04-6331fedadc46'},{date: '2023.11.10',result:'东云之谬(66.6)， 卢卢猹(9.4)， lichuan(-13.8)， 唤灵(-62.2)',link:'https://game.maj-soul.net/1/?paipu=231110-d322a39b-c962-41da-aed0-1cbaefea9a80'},{date: '2023.11.10',result:'sengwei(55.6)， PontsyneGu(7.0)， 臭臭好臭哦(-15.2)， 西电杨宗凯(-47.4)',link:'https://game.maj-soul.net/1/?paipu=231110-77af4d51-b581-4279-90dc-2673f7b1b8ce'},{date: '2023.11.10',result:'玄赤(61.9)， 失去梦想皮皮虾(21.3)， Toliamagi(-21.2)， 照魔镜talu(-62.0)',link:'https://game.maj-soul.net/1/?paipu=231110-656f0926-c8e1-4d80-879a-86b1cab82dfc'},],
+                playerroundData: [],
+                playerdetailData: [[4, '把把狗运', 'player', '2', '0', '1', '1', '4', '43', '38.0', '20.93%', '20.93%', '33.33%', '46.51%', '16.28%', '2.25'], [5, '玄赤', 'player', '3', '1', '0', '1', '5', '55', '143.0', '32.73%', '7.27%', '38.89%', '38.18%', '20.0%', '1.8'], [4, 'aaaaglaaaa', 'player', '0', '1', '1', '2', '4', '47', '-131.9', '12.77%', '23.4%', '33.33%', '72.34%', '10.64%', '3.25'], [3, 'AngelZJL', 'player', '3', '0', '0', '0', '3', '35', '204.9', '31.43%', '2.86%', '18.18%', '34.29%', '22.86%', '1.0'], [2, '五马分的商鞅', 'player', '0', '2', '0', '0', '2', '24', '19.8', '16.67%', '8.33%', '50.0%', '25.0%', '4.17%', '2.0'], [3, '唤灵', 'player', '1', '1', '0', '1', '3', '34', '32.3', '17.65%', '20.59%', '33.33%', '8.82%', '29.41%', '2.33'], [3, '别拷打我了', 'player', '1', '1', '0', '1', '3', '35', '-7.3', '22.86%', '11.43%', '37.5%', '37.14%', '11.43%', '2.33'], [3, '缪楚', 'player', '0', '0', '2', '1', '3', '36', '-100.2', '8.33%', '19.44%', '33.33%', '33.33%', '19.44%', '3.33'], [5, 'PontsyneGu', 'player', '3', '2', '0', '0', '5', '64', '200.0', '31.25%', '10.94%', '55.0%', '34.38%', '21.88%', '1.4'], [3, '应急食品供货商', 'player', '0', '1', '1', '1', '3', '41', '-93.6', '14.63%', '19.51%', '0.0%', '53.66%', '7.32%', '3.0'], [2, '东云之谬', 'player', '2', '0', '0', '0', '2', '29', '148.9', '37.93%', '10.34%', '45.45%', '41.38%', '13.79%', '1.0'], [3, 'Toliamagi', 'player', '0', '0', '2', '1', '3', '37', '-94.8', '27.03%', '18.92%', '10.0%', '56.76%', '13.51%', '3.33'], [3, '椎名真白XD', 'player', '1', '1', '0', '1', '3', '39', '24.1', '30.77%', '15.38%', '33.33%', '33.33%', '17.95%', '2.33'], [3, 'muqdipitty', 'player', '0', '0', '2', '1', '3', '43', '-91.5', '18.6%', '18.6%', '25.0%', '34.88%', '16.28%', '3.33'], [3, '西木野综合病院', 'player', '0', '2', '1', '0', '3', '42', '13.0', '16.67%', '11.9%', '28.57%', '38.1%', '23.81%', '2.33'], [2, '九头蛇水煮肉片', 'player', '0', '1', '0', '1', '2', '28', '-35.0', '32.14%', '14.29%', '22.22%', '46.43%', '25.0%', '3.0'], [4, 'lichuan', 'player', '0', '1', '2', '1', '4', '58', '-108.9', '18.97%', '15.52%', '36.36%', '31.03%', '27.59%', '3.0'], [4, '照魔镜talu', 'player', '0', '0', '2', '2', '4', '54', '-153.4', '9.26%', '20.37%', '40.0%', '14.81%', '14.81%', '3.5'], [4, '量子蝈民九折酱', 'player', '1', '1', '2', '0', '4', '50', '50.7', '30.0%', '18.0%', '73.33%', '24.0%', '28.0%', '2.25'], [4, '臭臭好臭哦', 'player', '1', '0', '1', '2', '4', '52', '-52.0', '25.0%', '23.08%', '7.69%', '44.23%', '17.31%', '3.0'], [2, '这就是郭楠', 'player', '1', '0', '1', '0', '2', '30', '40.1', '26.67%', '13.33%', '25.0%', '33.33%', '26.67%', '2.0'], [2, 'Flamingo_Li', 'player', '0', '2', '0', '0', '2', '29', '32.9', '31.03%', '6.9%', '22.22%', '27.59%', '20.69%', '2.0'], [3, 'sengwei', 'player', '2', '1', '0', '0', '3', '36', '133.2', '19.44%', '16.67%', '42.86%', '41.67%', '13.89%', '1.33'], [3, '西电杨宗凯', 'player', '0', '1', '0', '2', '3', '36', '-86.5', '11.11%', '13.89%', '75.0%', '27.78%', '25.0%', '3.33'], [2, '雀士亚', 'player', '0', '0', '2', '0', '2', '25', '-35.6', '24.0%', '0.0%', '16.67%', '52.0%', '4.0%', '3.0'], [1, '芯羽S', 'player', '0', '0', '0', '1', '1', '13', '-55.4', '7.69%', '15.38%', '0.0%', '30.77%', '15.38%', '4.0'], [1, '荒唐言1437', 'player', '0', '0', '1', '0', '1', '10', '-20.9', '30.0%', '10.0%', '66.67%', '40.0%', '20.0%', '3.0'], [2, '失去梦想皮皮虾', 'player', '0', '1', '0', '1', '2', '21', '-23.3', '19.05%', '9.52%', '0.0%', '33.33%', '14.29%', '3.0'], [1, '卢卢猹', 'player', '0', '1', '0', '0', '1', '14', '9.4', '21.43%', '0.0%', '33.33%', '21.43%', '0.0%', '2.0'], [0, 'unknown', 'player', '0', '0', '0', '0', '0', '0', '0.0', '0.0%', '0.0%', '0.0%', '0.0%', '0.0%', '0'], [0, 'unknown', 'player', '0', '0', '0', '0', '0', '0', '0.0', '0.0%', '0.0%', '0.0%', '0.0%', '0.0%', '0'], [0, 'unknown', 'player', '0', '0', '0', '0', '0', '0', '0.0', '0.0%', '0.0%', '0.0%', '0.0%', '0.0%', '0'], [0, 'unknown', 'player', '0', '0', '0', '0', '0', '0', '0.0', '0.0%', '0.0%', '0.0%', '0.0%', '0.0%', '0']],
+                d0:0,
+                d1:0,
+                d2:0,
+                d3:0,
+                d4:0,
+                d5:0,
+                d6:0,
+                d7:0,
+                d8:0,
+                dname:0,
+                tname:0,
+                d11:0,
+                d12:0,
+                d13:0,
+                d14:0,
+                
+                dialogTableVisible: false,
+            activeName: 'second'
+            };
+        },
+         methods: {
+            handleClick(tab, event) {
+                console.log(tab, event);
+            },
+            clickplayer(id){
+                console.log(id)
+                id=parseInt(id)
+                this.d0=this.playerdetailData[id][0]
+                this.d1=this.playerdetailData[id][8]
+                this.d2=this.playerdetailData[id][9]
+                this.d3=this.playerdetailData[id][10]
+                this.d4=this.playerdetailData[id][11]
+                this.d5=this.playerdetailData[id][12]
+                this.d6=this.playerdetailData[id][13]
+                this.d7=this.playerdetailData[id][14]
+                this.d8=this.playerdetailData[id][15]
+                this.dname=this.playerdetailData[id][1]
+                this.tname=this.playerdetailData[id][2]
+                this.d11=this.playerdetailData[id][3]
+                this.d12=this.playerdetailData[id][4]
+                this.d13=this.playerdetailData[id][5]
+                this.d14=this.playerdetailData[id][6]
+                this.gen_player_round_data(id)
+                this.dialogTableVisible=!this.dialogTableVisible
+            },
+            gen_player_round_data(id){
+                var name=this.playerdetailData[id][1]
+                var res =new Array()
+                for(i=0;i<this.roundData.length;i++){
+                    if(this.roundData[i]['result'].indexOf(name)!=-1){
+                        var split=this.roundData[i]['result'].split('，')
+                        var place=''
+                        if(split[0].indexOf(name)!=-1) place='一'
+                        if(split[1].indexOf(name)!=-1) place='二'
+                        if(split[2].indexOf(name)!=-1) place='三'
+                        if(split[3].indexOf(name)!=-1) place='四'
+                        this.roundData[i]['place']=place
+                        res.push(this.roundData[i])
+                    }
+                }
+                this.playerroundData=res
+                console.log(res[0])
+            },
+            initChart(d1,d2,d3,d4){
+                // 基于准备好的dom，初始化echarts实例
+                //console.log(this.$refs.chart)
+                let myChart = echarts.init(this.$refs['chart']);
+                
+
+                // 指定图表的配置项和数据
+                var option = {
+                    series: [
+                        {
+                        type: 'pie',
+                        label: {
+                            formatter: '{name|{b}}\n{value|{d}%}',
+                            rich: {
+                                time: {
+                                fontSize: 10,
+                                color: '#999'
+                                }
+                            }
+                        },
+                    color: ['#28A745','#17A2B8','#E5D96C','#DC3848'],
+                    data: [
+                            {value: d1,name: '一位'},
+                            {value: d2,name: '二位'},
+                            {value: d3,name: '三位'},
+                            {value: d4,name: '四位'},
+                        ],
+                        radius: '75%'
+                        }
+                    ]
+                    };
+
+                // 使用刚指定的配置项和数据显示图表。
+                myChart.setOption(option);
+            },
+            addplayerdata(){
+                for(i=0;i<this.playerData.length;i++){
+                    this.playerData[i]['cccs']=this.playerdetailData[i][7]
+                    this.playerData[i]['hpl']=this.playerdetailData[i][10].slice(0,-1)
+                    this.playerData[i]['fcl']=this.playerdetailData[i][11].slice(0,-1)
+                    this.playerData[i]['zml']=this.playerdetailData[i][12].slice(0,-1)
+                    this.playerData[i]['fll']=this.playerdetailData[i][13].slice(0,-1)
+                    this.playerData[i]['lzl']=this.playerdetailData[i][14].slice(0,-1)
+                    this.playerData[i]['pjsw']=this.playerdetailData[i][15]
+                }
+
+            },
+        },
+        created(){
+            this.addplayerdata()
+        },
+        updated () {
+            this.$nextTick(()=>{this.initChart(this.d11,this.d12,this.d13,this.d14)} )
+        },
+        
+    })
+
+
+
+
+</script>
+
+
+</body>
+
+<style>
+    .el-row {
+      margin-bottom: 20px;
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+    .el-col {
+      border-radius: 4px;
+    }
+    .bg-purple-dark {
+      background: #99a9bf;
+    }
+    .bg-purple {
+      background: #d3dce6;
+    }
+    .bg-purple-light {
+      background: #e5e9f2;
+    }
+    .grid-content {
+      border-radius: 4px;
+      min-height: 36px;
+    }
+    .row-bg {
+      padding: 10px 0;
+      background-color: #f9fafc;
+    }
+    .css-1oney6p {
+    margin: 0px;
+    font-family: Roboto, "Microsoft YaHei", Meiryo, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    line-height: 1.25;
+    text-align: right;
+    }
+    .css-z2oei0 {
+        margin: 0px;
+        margin-top: 0px;
+        font-family: Roboto, "Microsoft YaHei", Meiryo, sans-serif;
+        font-weight: 400;
+        font-size: 2.2267rem;
+        line-height: 1.235;
+        text-align: center;
+    }
+    .app{
+    margin: auto;
+    width: 1100px;
+    }
+    .css-saabsf {
+    margin: 0px 0px 16px;
+    margin-top: 32px;
+    margin-bottom: 0px;
+    font-family: Roboto, "Microsoft YaHei", Meiryo, sans-serif;
+    font-weight: 400;
+    font-size: 1.6867rem;
+    line-height: 1.334;
+    text-align: center;
+}
+.css-1u3q4k3 {
+    grid-template-columns: repeat(2, min-content);
+}
+
+.css-1u3q4k3, .css-1u3q4k3 * {
+    user-select: none;
+}
+
+.css-1u3q4k3 {
+    display: grid;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    gap: 12px;
+    /*grid-template-columns: 1fr;*/
+    width: 500px;
+    margin: auto;
+    margin-top: 0px;
+}
+
+.css-gg4vpm {
+    display: flex;
+    -webkit-box-pack: justify;
+    justify-content: space-between;
+    width: 150px;
+}
+
+.css-lrbsr7 {
+    margin: 0px;
+    font-family: Roboto, "Microsoft YaHei", Meiryo, sans-serif;
+    font-weight: 700;
+    font-size: 1rem;
+    overflow: hidden;
+    white-space: nowrap;
+    line-height: 1.25;
+    text-overflow: initial;
+}
+
+  </style>
+</html>
