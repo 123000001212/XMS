@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>西風麻雀社</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="" />
+ 
+<link href="./css/bootstrap.min.css" rel="stylesheet" />
+<script src="js/vue.js"></script>
+<link href="./css/fancybox/jquery.fancybox.css" rel="stylesheet">
+<!--<link href="./css/jcarousel.css" rel="stylesheet" />-->
+<link href="./css/flexslider.css" rel="stylesheet" />
+<link href="./css/style.css" rel="stylesheet" />
+<link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
+<script src="https://unpkg.com/element-ui/lib/index.js"></script>
+ 
+<!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+</head>
+<body>
+<div id="wrapper">
+
+	<!-- start header -->
+		<header>
+        <div class="navbar navbar-default navbar-static-top">
+            <div class="container">
+                <div class="navbar-header">
+                    <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button>
+                    <a class="navbar-brand" href="index.html"><img src="./img/logo.png" height="42px" alt="logo"/></a>
+                </div>
+                <div class="navbar-collapse collapse ">
+                    <ul class="nav navbar-nav">
+                        <li><a href="index.html">主页</a></li> 
+						<li><a href="about.html">成员</a></li>
+						<li><a href="services.html">赛事</a></li>
+                        <li class="active"><a href="portfolio.html">工具</a></li>
+                        <li><a href="pricing.html">加入我们</a></li>
+                        <li><a href="contact.html">敬请期待</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+	</header><!-- end header -->
+	<section id="inner-headline">
+	<div class="container">
+		<div class="row">
+			<div class="col-lg-12">
+				<h2 class="pageTitle">何切局面转换工具</h2>
+			</div>
+		</div>
+	</div>
+	</section>
+	<section id="content">
+		<div class="container content">
+            <div id="app" class="app" >
+
+                *本工具未经严谨测试，且暂不支持副露，立直
+                <br><br>
+
+                <el-select
+                v-model="changfeng"
+                default-first-option
+                placeholder="東"
+                style="width: 70px;">
+                <el-option
+                  v-for="item in options"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
+                </el-option>
+                </el-select>
+
+                <el-input-number v-model="jushu" :min="1" :max="4" style="width: 120px;"></el-input-number>
+                局
+
+                <el-input-number v-model="benchang" :min="0" :max="20" style="width: 120px;"></el-input-number>
+                本场
+
+                <el-input-number v-model="gongtuo" :min="0" :max="100" style="width: 120px;"></el-input-number>
+                供托
+                <br><br>
+
+                宝牌 <el-input v-model="baopai" placeholder="1s" maxlength="10" style="width: 120px;"></el-input>
+
+                <br><br>
+
+                四家点数（東南西北）
+                <el-input-number v-model="score[0]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
+                <el-input-number v-model="score[1]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
+                <el-input-number v-model="score[2]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
+                <el-input-number v-model="score[3]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
+                <br><br>
+
+                東家手牌 <el-input v-model="dongjiashoupai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                東家舍牌 <el-input v-model="dongjiashepai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                南家手牌 <el-input v-model="nanjiashoupai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                南家舍牌 <el-input v-model="nanjiashepai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                西家手牌 <el-input v-model="xijiashoupai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                西家舍牌 <el-input v-model="xijiashepai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                北家手牌 <el-input v-model="beijiashoupai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+
+                北家舍牌 <el-input v-model="beijiashepai" placeholder="1s" style="width: 450px;"></el-input>
+
+                <br><br>
+                <a class="btn btn-theme" @click=click()>生成log</a>
+            
+                
+                <div class="block-heading-six">
+                    <br>
+                    <h4 class="bg-color">输出log</h4> （请在摩托页面选择自风）
+                </div>
+                <textarea name="textarea" id="01" cols="55" rows="10" readonly>{{res}}</textarea>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<script>
+    new Vue({
+        el: '#app',
+        data: function() {
+            return {
+                res: '',
+                options: [{
+                    value: '東',
+                    label: '東'
+                    }, {
+                    value: '南',
+                    label: '南'
+                    }, {
+                    value: '西',
+                    label: '西'
+                    }],
+                changfeng: '東',
+                jushu: 1,
+                benchang: 0,
+                gongtuo: 0,
+                baopai: '1s',
+                score: [25000,25000,25000,25000],
+                dongjiashoupai:'1s2s3s4s5s6s7s8s9s1p2p3p4p',
+                dongjiashepai:'2z',
+                nanjiashoupai:'6p7p8p9p1m2m3m4m5m6m7m8m9m',
+                nanjiashepai:'3z',
+                xijiashoupai:'1z2z3z4z5z6z7z1s2s3s4s5s6s',
+                xijiashepai:'4z',
+                beijiashoupai:'7s8s9s1p2p3p4p5p6p7p8p9p1z',
+                beijiashepai:'5z',
+
+
+                        };
+                    },
+         methods: {
+            convert(str) {
+                if(str[0]=='0'){
+                    if(str[1]=='m'){return 51}
+                    if(str[1]=='p'){return 52}
+                    if(str[1]=='s'){return 53}
+                }
+                if(str[1]=='m'){return 10+parseInt(str[0])}
+                if(str[1]=='p'){return 20+parseInt(str[0])}
+                if(str[1]=='s'){return 30+parseInt(str[0])}
+                if(str[1]=='z'){return 40+parseInt(str[0])}
+                this.$message.error(str+'出错了，请检查输入')
+            },
+            sum(arr) {
+                s = 0
+                for (var i=arr.length-1; i>=0; i--) s += arr[i]
+                return s
+            },
+            click() {
+                this.res="{\"log\":[["
+                dic={'東':0, '南': 4, '西':8}
+                a1=[this.jushu-1+dic[this.changfeng],this.benchang,this.gongtuo]
+                this.res+= '[' + a1 + '],' // [局数,本场,供托]
+
+                this.res+= '[' + this.score + '],' // [四家分]
+                if(this.sum(this.score) + this.gongtuo * 1000 != 100000) this.$message.error('四家得分与供托之和不为100000，请检查输入')
+
+                dora=[]
+                for(i=0;i<this.baopai.length;i+=2){dora.push(this.convert(this.baopai.slice(i,i+2)))}
+                this.res+= '[' + dora + '],' // dora
+
+                this.res+= '[],' // 里宝
+
+                pai=[]
+                for(i=0;i<this.dongjiashoupai.length;i+=2){pai.push(this.convert(this.dongjiashoupai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 東家配牌
+
+                pai=[]
+                for(i=0;i<this.dongjiashepai.length;i+=2){pai.push(this.convert(this.dongjiashepai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 東家摸牌
+                this.res+= '[' + pai + '],' // 東家舍牌
+
+                pai=[]
+                for(i=0;i<this.nanjiashoupai.length;i+=2){pai.push(this.convert(this.nanjiashoupai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 南家配牌
+
+                pai=[]
+                for(i=0;i<this.nanjiashepai.length;i+=2){pai.push(this.convert(this.nanjiashepai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 南家摸牌
+                this.res+= '[' + pai + '],' // 南家舍牌
+
+                pai=[]
+                for(i=0;i<this.xijiashoupai.length;i+=2){pai.push(this.convert(this.xijiashoupai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 西家配牌
+
+                pai=[]
+                for(i=0;i<this.xijiashepai.length;i+=2){pai.push(this.convert(this.xijiashepai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 西家摸牌
+                this.res+= '[' + pai + '],' // 西家舍牌
+
+                pai=[]
+                for(i=0;i<this.beijiashoupai.length;i+=2){pai.push(this.convert(this.beijiashoupai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 北家配牌
+
+                pai=[]
+                for(i=0;i<this.beijiashepai.length;i+=2){pai.push(this.convert(this.beijiashepai.slice(i,i+2)))}
+
+                this.res+= '[' + pai + '],' // 北家摸牌
+                this.res+= '[' + pai + '],' // 北家舍牌
+
+                this.res+= '[\"不明\"]]]}' // 终局
+            },
+
+        },
+
+        
+    })
+
+</script>
+
+
+
+
+
+
+<!-- javascript
+    ================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="js/jquery.js"></script>
+<script src="js/jquery.easing.1.3.js"></script>
+<script src="js/bootstrap.min.js"></script>
+<script src="js/jquery.fancybox.pack.js"></script>
+<script src="js/jquery.fancybox-media.js"></script> 
+<script src="js/portfolio/jquery.quicksand.js"></script>
+<script src="js/portfolio/setting.js"></script>
+<script src="js/jquery.flexslider.js"></script>
+<script src="js/animate.js"></script>
+<script src="js/custom.js"></script>
+</body>
+</html>
