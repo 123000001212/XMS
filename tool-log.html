@@ -102,35 +102,35 @@
                 <el-input-number v-model="score[3]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
                 <br><br>
 
-                東家手牌 <el-input v-model="dongjiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
+                東家手牌 <el-input v-model="shoupai[0]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                東家舍牌 <el-input v-model="dongjiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                東家舍牌 <el-input v-model="shepai[0]" placeholder="1s" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                南家手牌 <el-input v-model="nanjiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
+                南家手牌 <el-input v-model="shoupai[1]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                南家舍牌 <el-input v-model="nanjiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                南家舍牌 <el-input v-model="shepai[1]" placeholder="1s" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                西家手牌 <el-input v-model="xijiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
+                西家手牌 <el-input v-model="shoupai[2]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                西家舍牌 <el-input v-model="xijiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                西家舍牌 <el-input v-model="shepai[2]" placeholder="1s" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                北家手牌 <el-input v-model="beijiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
+                北家手牌 <el-input v-model="shoupai[3]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
 
                 <br><br>
 
-                北家舍牌 <el-input v-model="beijiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                北家舍牌 <el-input v-model="shepai[3]" placeholder="1s" style="width: 450px;"></el-input>
 
                 <br><br>
                 <a class="btn btn-theme" @click=click()>生成log</a>
@@ -169,15 +169,15 @@
                 gongtuo: 0,
                 baopai: '1s',
                 score: [25000,25000,25000,25000],
-                dongjiashoupai:'1s2s3s4s5s6s7s8s9s1p2p3p4p',
-                dongjiashepai:'2z',
-                nanjiashoupai:'6p7p8p9p1m2m3m4m5m6m7m8m9m',
-                nanjiashepai:'3z',
-                xijiashoupai:'1z2z3z4z5z6z7z1s2s3s4s5s6s',
-                xijiashepai:'4z',
-                beijiashoupai:'7s8s9s1p2p3p4p5p6p7p8p9p1z',
-                beijiashepai:'5z',
-
+                shoupai: ['1s2s3s4s5s6s7s8s9s1p2p3p4p',
+                        '6p7p8p9p1m2m3m4m5m6m7m8m9m',
+                        '1z2z3z4z5z6z7z1s2s3s4s5s6s',
+                        '7s8s9s1p2p3p4p5p6p7p8p9p1z',],
+                shepai: ['2z',
+                        '3z',
+                        '4z',
+                        '5z',],
+                        
 
                         };
                     },
@@ -215,45 +215,45 @@
                 this.res+= '[],' // 里宝
 
                 pai=[]
-                for(i=0;i<this.dongjiashoupai.length;i+=2){pai.push(this.convert(this.dongjiashoupai.slice(i,i+2)))}
+                for(i=0;i<this.shoupai[0].length;i+=2){pai.push(this.convert(this.shoupai[0].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 東家配牌
 
                 pai=[]
-                for(i=0;i<this.dongjiashepai.length;i+=2){pai.push(this.convert(this.dongjiashepai.slice(i,i+2)))}
+                for(i=0;i<this.shepai[0].length;i+=2){pai.push(this.convert(this.shepai[0].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 東家摸牌
                 this.res+= '[' + pai + '],' // 東家舍牌
 
                 pai=[]
-                for(i=0;i<this.nanjiashoupai.length;i+=2){pai.push(this.convert(this.nanjiashoupai.slice(i,i+2)))}
+                for(i=0;i<this.shoupai[1].length;i+=2){pai.push(this.convert(this.shoupai[1].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 南家配牌
 
                 pai=[]
-                for(i=0;i<this.nanjiashepai.length;i+=2){pai.push(this.convert(this.nanjiashepai.slice(i,i+2)))}
+                for(i=0;i<this.shepai[1].length;i+=2){pai.push(this.convert(this.shepai[1].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 南家摸牌
                 this.res+= '[' + pai + '],' // 南家舍牌
 
                 pai=[]
-                for(i=0;i<this.xijiashoupai.length;i+=2){pai.push(this.convert(this.xijiashoupai.slice(i,i+2)))}
+                for(i=0;i<this.shoupai[2].length;i+=2){pai.push(this.convert(this.shoupai[2].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 西家配牌
 
                 pai=[]
-                for(i=0;i<this.xijiashepai.length;i+=2){pai.push(this.convert(this.xijiashepai.slice(i,i+2)))}
+                for(i=0;i<this.shepai[2].length;i+=2){pai.push(this.convert(this.shepai[2].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 西家摸牌
                 this.res+= '[' + pai + '],' // 西家舍牌
 
                 pai=[]
-                for(i=0;i<this.beijiashoupai.length;i+=2){pai.push(this.convert(this.beijiashoupai.slice(i,i+2)))}
+                for(i=0;i<this.shoupai[3].length;i+=2){pai.push(this.convert(this.shoupai[3].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 北家配牌
 
                 pai=[]
-                for(i=0;i<this.beijiashepai.length;i+=2){pai.push(this.convert(this.beijiashepai.slice(i,i+2)))}
+                for(i=0;i<this.shepai[3].length;i+=2){pai.push(this.convert(this.shepai[3].slice(i,i+2)))}
 
                 this.res+= '[' + pai + '],' // 北家摸牌
                 this.res+= '[' + pai + '],' // 北家舍牌
