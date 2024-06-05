@@ -65,7 +65,10 @@
                 *本工具未经严谨测试，且暂不支持副露，立直
                 <br><br>
 
-                *東南西北家均指東一局时的東南西北家
+                *東南西北家均指当前的東南西北家，不是東南西北起的玩家
+                <br><br>
+
+                *四家舍牌用mq表示模切
                 <br><br>
 
                 <el-select
@@ -142,7 +145,7 @@
                 
                 <div class="block-heading-six">
                     <br>
-                    <h4 class="bg-color">输出log</h4> （请在摩托页面选择目标玩家）
+                    *在摩托页面选择目标玩家，是東南西北起的玩家，不是当前的東南西北家
                 </div>
                 <textarea name="textarea" id="01" cols="55" rows="10" readonly>{{res}}</textarea>
             </div>
@@ -190,7 +193,8 @@
                         };
                     },
          methods: {
-            convert(str) {
+            convert(str,allow_mq) {
+                if(allow_mq && str[0]=='m' && str[1]=='q'){return 60}
                 if(str[0]=='0'){
                     if(str[1]=='m'){return 51}
                     if(str[1]=='p'){return 52}
@@ -221,14 +225,18 @@
                 this.res+= '[' + dora + '],' // dora
 
                 this.res+= '[],' // 里宝
-
-                for (j=0;j<4;j++){
+                // console.log(this.jushu-1, (this.jushu+3)%4)
+                flag=true
+                for (j=this.jushu-1;j!=(this.jushu+3)%4||flag;j=(j+1)%4){
+                    flag=false
                     pai=[]
                     for(i=0;i<this.shoupai[j].length;i+=2){pai.push(this.convert(this.shoupai[j].slice(i,i+2)))}
                     this.res+= '[' + pai + '],' // 配牌
                     pai=[]
-                    for(i=0;i<this.shepai[j].length;i+=2){pai.push(this.convert(this.shepai[j].slice(i,i+2)))}
+                    for(i=0;i<this.mopai[j].length;i+=2){pai.push(this.convert(this.mopai[j].slice(i,i+2)))}
                     this.res+= '[' + pai + '],' // 摸牌
+                    pai=[]
+                    for(i=0;i<this.shepai[j].length;i+=2){pai.push(this.convert(this.shepai[j].slice(i,i+2),allow_mq=true))}
                     this.res+= '[' + pai + '],' // 舍牌
                 }
 
