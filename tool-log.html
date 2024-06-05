@@ -217,7 +217,14 @@
                 a1=[this.jushu-1+dic[this.changfeng],this.benchang,this.gongtuo]
                 this.res+= '[' + a1 + '],' // [局数,本场,供托]
 
-                this.res+= '[' + this.score + '],' // [四家分]
+                new_score = []
+                flag=true
+                for (j=this.jushu-1;j!=(this.jushu+3)%4||flag;j=(j+1)%4){
+                    flag=false
+                    new_score.push(this.score[j])
+                }
+
+                this.res+= '[' + new_score + '],' // [四家分]
                 if(this.sum(this.score) + this.gongtuo * 1000 != 100000) this.$message.error('四家得分与供托之和不为100000，请检查输入')
 
                 dora=[]
