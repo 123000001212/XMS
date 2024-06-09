@@ -65,7 +65,10 @@
                 *本工具未经严谨测试，且暂不支持副露，立直
                 <br><br>
 
-                *東南西北家均指東一局时的東南西北家
+                *東南西北家均指当前的東南西北家，不是東南西北起的玩家
+                <br><br>
+
+                *四家舍牌用mq表示模切
                 <br><br>
 
                 <el-select
@@ -102,43 +105,47 @@
                 <el-input-number v-model="score[3]" :min="0" :max="100000" :step="100" step-strictly style="width: 160px;"></el-input-number>
                 <br><br>
 
-                東家手牌 <el-input v-model="dongjiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
-
+                東家手牌 <el-input v-model="shoupai[0]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
                 <br><br>
 
-                東家舍牌 <el-input v-model="dongjiashepai" placeholder="1s" style="width: 450px;"></el-input>
-
+                東家摸牌 <el-input v-model="mopai[0]" placeholder="1s" style="width: 450px;"></el-input>
                 <br><br>
 
-                南家手牌 <el-input v-model="nanjiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
-
+                東家舍牌 <el-input v-model="shepai[0]" placeholder="1s" style="width: 450px;"></el-input>
                 <br><br>
 
-                南家舍牌 <el-input v-model="nanjiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                南家手牌 <el-input v-model="shoupai[1]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
 
                 <br><br>
-
-                西家手牌 <el-input v-model="xijiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
-
+                南家摸牌 <el-input v-model="mopai[1]" placeholder="1s" style="width: 450px;"></el-input>
                 <br><br>
 
-                西家舍牌 <el-input v-model="xijiashepai" placeholder="1s" style="width: 450px;"></el-input>
-
+                南家舍牌 <el-input v-model="shepai[1]" placeholder="1s" style="width: 450px;"></el-input>
                 <br><br>
 
-                北家手牌 <el-input v-model="beijiashoupai" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
-
+                西家手牌 <el-input v-model="shoupai[2]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
                 <br><br>
 
-                北家舍牌 <el-input v-model="beijiashepai" placeholder="1s" style="width: 450px;"></el-input>
+                西家摸牌 <el-input v-model="mopai[2]" placeholder="1s" style="width: 450px;"></el-input>
+                <br><br>
 
+                西家舍牌 <el-input v-model="shepai[2]" placeholder="1s" style="width: 450px;"></el-input>
+                <br><br>
+
+                北家手牌 <el-input v-model="shoupai[3]" placeholder="1s" maxlength="26" style="width: 450px;"></el-input>
+                <br><br>
+
+                北家摸牌 <el-input v-model="mopai[3]" placeholder="1s" style="width: 450px;"></el-input>
+                <br><br>
+
+                北家舍牌 <el-input v-model="shepai[3]" placeholder="1s" style="width: 450px;"></el-input>
                 <br><br>
                 <a class="btn btn-theme" @click=click()>生成log</a>
             
                 
                 <div class="block-heading-six">
                     <br>
-                    <h4 class="bg-color">输出log</h4> （请在摩托页面选择目标玩家）
+                    *在摩托页面选择目标玩家，是東南西北起的玩家，不是当前的東南西北家
                 </div>
                 <textarea name="textarea" id="01" cols="55" rows="10" readonly>{{res}}</textarea>
             </div>
@@ -169,20 +176,25 @@
                 gongtuo: 0,
                 baopai: '1s',
                 score: [25000,25000,25000,25000],
-                dongjiashoupai:'1s2s3s4s5s6s7s8s9s1p2p3p4p',
-                dongjiashepai:'2z',
-                nanjiashoupai:'6p7p8p9p1m2m3m4m5m6m7m8m9m',
-                nanjiashepai:'3z',
-                xijiashoupai:'1z2z3z4z5z6z7z1s2s3s4s5s6s',
-                xijiashepai:'4z',
-                beijiashoupai:'7s8s9s1p2p3p4p5p6p7p8p9p1z',
-                beijiashepai:'5z',
-
+                shoupai: ['1s2s3s4s5s6s7s8s9s1p2p3p4p',
+                        '6p7p8p9p1m2m3m4m5m6m7m8m9m',
+                        '1z2z3z4z5z6z7z1s2s3s4s5s6s',
+                        '7s8s9s1p2p3p4p5p6p7p8p9p1z',],
+                mopai: ['2z',
+                        '3z',
+                        '4z',
+                        '5z',],
+                shepai: ['2z',
+                        '3z',
+                        '4z',
+                        '5z',],
+                        
 
                         };
                     },
          methods: {
-            convert(str) {
+            convert(str,allow_mq) {
+                if(allow_mq && str[0]=='m' && str[1]=='q'){return 60}
                 if(str[0]=='0'){
                     if(str[1]=='m'){return 51}
                     if(str[1]=='p'){return 52}
@@ -205,7 +217,14 @@
                 a1=[this.jushu-1+dic[this.changfeng],this.benchang,this.gongtuo]
                 this.res+= '[' + a1 + '],' // [局数,本场,供托]
 
-                this.res+= '[' + this.score + '],' // [四家分]
+                dic = {1:[0,1,2,3],2:[3,0,1,2],3:[2,3,0,1],4:[1,2,3,0]}
+                c_dic=dic[this.jushu]
+                new_score=[]
+                for (j=0;j<4;j++){
+                    new_score.push(this.score[c_dic[j]])
+                }
+
+                this.res+= '[' + new_score + '],' // [四家分]
                 if(this.sum(this.score) + this.gongtuo * 1000 != 100000) this.$message.error('四家得分与供托之和不为100000，请检查输入')
 
                 dora=[]
@@ -213,50 +232,19 @@
                 this.res+= '[' + dora + '],' // dora
 
                 this.res+= '[],' // 里宝
+                // console.log(this.jushu-1, (this.jushu+3)%4)
+                for (j=0;j<4;j++){
+                    pai=[]
+                    for(i=0;i<this.shoupai[c_dic[j]].length;i+=2){pai.push(this.convert(this.shoupai[c_dic[j]].slice(i,i+2)))}
+                    this.res+= '[' + pai + '],' // 配牌
+                    pai=[]
+                    for(i=0;i<this.mopai[c_dic[j]].length;i+=2){pai.push(this.convert(this.mopai[c_dic[j]].slice(i,i+2)))}
+                    this.res+= '[' + pai + '],' // 摸牌
+                    pai=[]
+                    for(i=0;i<this.shepai[c_dic[j]].length;i+=2){pai.push(this.convert(this.shepai[c_dic[j]].slice(i,i+2),allow_mq=true))}
+                    this.res+= '[' + pai + '],' // 舍牌
+                }
 
-                pai=[]
-                for(i=0;i<this.dongjiashoupai.length;i+=2){pai.push(this.convert(this.dongjiashoupai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 東家配牌
-
-                pai=[]
-                for(i=0;i<this.dongjiashepai.length;i+=2){pai.push(this.convert(this.dongjiashepai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 東家摸牌
-                this.res+= '[' + pai + '],' // 東家舍牌
-
-                pai=[]
-                for(i=0;i<this.nanjiashoupai.length;i+=2){pai.push(this.convert(this.nanjiashoupai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 南家配牌
-
-                pai=[]
-                for(i=0;i<this.nanjiashepai.length;i+=2){pai.push(this.convert(this.nanjiashepai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 南家摸牌
-                this.res+= '[' + pai + '],' // 南家舍牌
-
-                pai=[]
-                for(i=0;i<this.xijiashoupai.length;i+=2){pai.push(this.convert(this.xijiashoupai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 西家配牌
-
-                pai=[]
-                for(i=0;i<this.xijiashepai.length;i+=2){pai.push(this.convert(this.xijiashepai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 西家摸牌
-                this.res+= '[' + pai + '],' // 西家舍牌
-
-                pai=[]
-                for(i=0;i<this.beijiashoupai.length;i+=2){pai.push(this.convert(this.beijiashoupai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 北家配牌
-
-                pai=[]
-                for(i=0;i<this.beijiashepai.length;i+=2){pai.push(this.convert(this.beijiashepai.slice(i,i+2)))}
-
-                this.res+= '[' + pai + '],' // 北家摸牌
-                this.res+= '[' + pai + '],' // 北家舍牌
 
                 this.res+= '[\"不明\"]]]}' // 终局
             },
